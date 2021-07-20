@@ -19,4 +19,4 @@ after_success:
 - docker push ${IMGNAME}
 - echo "${SSH_KEY}" | base64 --decode > /tmp/ssh-rsa
 - chmod 600 /tmp/ssh-rsa
-- ssh -o "StrictHostKeyChecking no" azureuser@${IPDEPLOY} -i ssh-add /tmp/ssh-rsa "docker pull ${IMGNAME} & docker container stop app & docker run --rm -d --name=app ${IMGNAME}"
+- ssh -o "StrictHostKeyChecking no" azureuser@${IPDEPLOY} -i ssh-add /tmp/ssh-rsa "sudo docker pull ${IMGNAME} & sudo docker container stop app & sudo docker run --rm -d --name=app ${IMGNAME}"
