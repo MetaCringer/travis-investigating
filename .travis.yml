@@ -3,20 +3,17 @@ arch:
   - arm64
 
 env:
-  - IMGNAME=metacringer/web:js
+  - IMGNAME=metacringer/web:js-${TRAVIS_COMMIT}
 
 services:
   - docker
 
-before_install:
-- docker build -t ${IMGNAME} .
-
 script:
-- dig +short myip.opendns.com @resolver1.opendns.com
-
-after_success:
+- docker build -t ${IMGNAME} .
 - docker login -u ${DHUB_USERNAME} -p ${DHUB_PASSWORD}
 - docker push ${IMGNAME}
+
+after_success:
 - echo "${SSH_KEY}" | base64 --decode > /tmp/ssh-rsa
 - chmod 600 /tmp/ssh-rsa
 - ssh -o "StrictHostKeyChecking no" azureuser@${IPDEPLOY} -i ssh-add /tmp/ssh-rsa "sudo docker pull ${IMGNAME} & sudo docker container stop app & sudo docker run --rm -d --name=app ${IMGNAME}"
