@@ -10,6 +10,7 @@ services:
 
 script:
 - docker build -t ${IMGNAME} .
+- if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then travis_terminate 0; fi
 - docker login -u ${DHUB_USERNAME} -p ${DHUB_PASSWORD}
 - docker push ${IMGNAME}
 
