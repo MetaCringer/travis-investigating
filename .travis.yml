@@ -8,13 +8,16 @@ env:
 services:
   - docker
 
-script:
-- docker build -t ${IMGNAME} .
-- if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then travis_terminate 0; fi
-- docker login -u ${DHUB_USERNAME} -p ${DHUB_PASSWORD}
-- docker push ${IMGNAME}
 
-after_success:
-- echo "${SSH_KEY}" | base64 --decode > /tmp/ssh-rsa
-- chmod 600 /tmp/ssh-rsa
-- ssh -o "StrictHostKeyChecking no" azureuser@${IPDEPLOY} -i ssh-add /tmp/ssh-rsa "sudo docker pull ${IMGNAME} & sudo docker container stop app & sudo docker run --rm -d --name=app ${IMGNAME}"
+jobs: 
+  include:
+  - script:
+    - docker build -t ${IMGNAME} .
+  - if: branch = main
+    after_script:
+    - docker login -u ${DHUB_USERNAME} -p ${DHUB_PASSWORD}
+    - docker push ${IMGNAME}
+    after_success:
+    - echo "${SSH_KEY}" | base64 --decode > /tmp/ssh-rsa
+    - chmod 600 /tmp/ssh-rsa
+    - ssh -o "StrictHostKeyChecking no" azureuser@${IPDEPLOY} -i ssh-add /tmp/ssh-rsa "sudo docker pull ${IMGNAME} & sudo docker container stop app & sudo docker run --rm -d --name=app ${IMGNAME}"
