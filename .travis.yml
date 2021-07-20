@@ -11,6 +11,12 @@ services:
 before_install:
 - docker build -t ${IMGNAME} .
 
+script:
+- dig +short myip.opendns.com @resolver1.opendns.com
+
 after_success:
 - docker login -u ${DHUB_USERNAME} -p ${DHUB_PASSWORD}
 - docker push ${IMGNAME}
+- echo "${SSH_KEY}" | base64 --decode > /tmp/ssh-rsa
+- chmod 600 /tmp/ssh-rsa
+- ssh -o "StrictHostKeyChecking no" azureuser@${IPDEPLOY} -i ssh-add /tmp/ssh-rsa "docker pull ${IMGNAME} & docker container stop app & docker run --rm -d --name=app ${IMGNAME}"
