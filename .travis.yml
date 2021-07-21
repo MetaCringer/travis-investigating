@@ -12,15 +12,13 @@ services:
 
 jobs: 
   include:
-  - stage: build
+  - stage: one
     script:
     - docker build -t ${IMGNAME} .
-  - stage: push
-    if: branch = main
+  - if: branch = main
     script:
     - docker login -u ${DHUB_USERNAME} -p ${DHUB_PASSWORD}
     - docker push ${IMGNAME}
-  - stage: deploy
     after_success:
     - echo "${SSH_KEY}" | base64 --decode > /tmp/ssh-rsa
     - chmod 600 /tmp/ssh-rsa
