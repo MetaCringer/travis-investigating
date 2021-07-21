@@ -8,11 +8,11 @@ env:
 services:
   - docker
 
+script:
+- docker build -t ${IMGNAME} .
 
 jobs: 
   include:
-  - script:
-    - docker build -t ${IMGNAME} .
   - if: branch = main
     after_script:
     - docker login -u ${DHUB_USERNAME} -p ${DHUB_PASSWORD}
