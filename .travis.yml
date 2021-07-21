@@ -14,7 +14,7 @@ script:
 jobs: 
   include:
   - if: branch = main
-    after_script:
+    script:
     - docker login -u ${DHUB_USERNAME} -p ${DHUB_PASSWORD}
     - docker push ${IMGNAME}
     after_success:
