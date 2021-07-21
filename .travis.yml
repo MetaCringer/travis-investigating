@@ -9,15 +9,19 @@ services:
   - docker
 
 
+
 jobs: 
   include:
-  - script:
+  - stage: one
+    script:
     - docker build -t ${IMGNAME} .
-  - if: branch = main
-    after_script:
-    - docker login -u ${DHUB_USERNAME} -p ${DHUB_PASSWORD}
-    - docker push ${IMGNAME}
-    after_success:
-    - echo "${SSH_KEY}" | base64 --decode > /tmp/ssh-rsa
-    - chmod 600 /tmp/ssh-rsa
-    - ssh -o "StrictHostKeyChecking no" azureuser@${IPDEPLOY} -i ssh-add /tmp/ssh-rsa "sudo docker pull ${IMGNAME} & sudo docker container stop app & sudo docker run --rm -d --name=app ${IMGNAME}"
+    deploy:
+      provider: script
+      script: 
+      - docker login -u ${DHUB_USERNAME} -p ${DHUB_PASSWORD}
+      - docker push ${IMGNAME}
+      - echo "${SSH_KEY}" | base64 --decode > /tmp/ssh-rsa
+      - chmod 600 /tmp/ssh-rsa
+      - ssh -o "StrictHostKeyChecking no" azureuser@${IPDEPLOY} -i ssh-add /tmp/ssh-rsa "sudo docker pull ${IMGNAME} & sudo docker container stop app & sudo docker run --rm -d --name=app ${IMGNAME}"
+      on:
+        branch: main
